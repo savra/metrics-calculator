@@ -27,6 +27,18 @@ import NumberFormat from 'react-number-format';
 import {Alert} from '@material-ui/lab';
 import Snackbar from "@material-ui/core/Snackbar";
 import axios from "axios";
+import {
+    orange,
+    blue,
+    deepPurple,
+    deepOrange
+} from "@material-ui/core/colors";
+import {createMuiTheme, ThemeProvider} from "@material-ui/core/styles";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import AppBar from "@material-ui/core/AppBar";
+import clsx from "clsx";
+import Toolbar from "@material-ui/core/Toolbar";
+import Switch from "@material-ui/core/Switch";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -42,6 +54,12 @@ const useStyles = makeStyles((theme) => ({
             textAlign: 'center',
             color: theme.palette.text.secondary,
         },
+    },
+    menuButton: {
+        marginRight: 36
+    },
+    menuButtonHidden: {
+        display: "none"
     },
     margin: {
         margin: theme.spacing(1),
@@ -74,7 +92,10 @@ const useStyles = makeStyles((theme) => ({
     collapse: {
         position: theme.fixed,
         bottom: 800
-    }
+    },
+    title: {
+        flexGrow: 1
+    },
 }));
 
 function NumberFormatCustom(props) {
@@ -138,12 +159,18 @@ function PlannedReleaseMonth({params}) {
     );
 }
 
-function Metrics({params}) {
+function Metrics({params, setValueSign}) {
     const classes = useStyles();
     const [metric, setMetric] = React.useState('');
 
     const handleChange = (event) => {
         setMetric(event.target.value);
+
+        switch (event.target.value) {
+            case 'DURATION_OF_MANUAL_OPERATIONS':
+            case 'RR': setValueSign('%'); break;
+            default: setValueSign('₽'); break;
+        }
     };
 
     React.useEffect(() => {
@@ -170,7 +197,7 @@ function Metrics({params}) {
     );
 }
 
-function InputMetricValues({props}) {
+function InputMetricValues({props,  valueSign}) {
     const classes = useStyles();
     const [values, setValues] = React.useState({
         userAsIsValue: 0,
@@ -199,7 +226,7 @@ function InputMetricValues({props}) {
                                     id="outlined-adornment-amount"
                                     value={values.userAsIsValue}
                                     onChange={handleChange('userAsIsValue')}
-                                    endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                                    endAdornment={<InputAdornment position="end">{valueSign}</InputAdornment>}
                                     labelWidth={180}
                                     inputComponent={NumberFormatCustom}
                                 />
@@ -212,7 +239,7 @@ function InputMetricValues({props}) {
                                     id="outlined-adornment-amount"
                                     value={values.bpAsIsValue}
                                     onChange={handleChange('bpAsIsValue')}
-                                    endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                                    endAdornment={<InputAdornment position="end">{valueSign}</InputAdornment>}
                                     labelWidth={120}
                                     inputComponent={NumberFormatCustom}
                                 />
@@ -228,7 +255,7 @@ function InputMetricValues({props}) {
                                     id="outlined-adornment-amount"
                                     value={values.userToBeValue}
                                     onChange={handleChange('userToBeValue')}
-                                    endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                                    endAdornment={<InputAdornment position="end">{valueSign}</InputAdornment>}
                                     labelWidth={180}
                                     inputComponent={NumberFormatCustom}
                                 />
@@ -367,6 +394,25 @@ function ResultTextFields({props}) {
 function App() {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
+    const [darkState, setDarkState] = React.useState(false);
+    const palletType = darkState ? "dark" : "light";
+    const mainPrimaryColor = darkState ? orange[600] : blue[700];
+    const [valueSign, setValueSign] = React.useState('');
+    const mainSecondaryColor = darkState ? deepOrange[900] : deepPurple[500];
+    const darkTheme = createMuiTheme({
+        palette: {
+            type: palletType,
+            primary: {
+                main: mainPrimaryColor
+            },
+            secondary: {
+                main: mainSecondaryColor
+            }
+        }
+    });
+    const handleThemeChange = () => {
+        setDarkState(!darkState);
+    };
 
     const [responseValue, setResponseValue] = React.useState("");
     const [stage, setStage] = React.useState("");
@@ -420,56 +466,76 @@ function App() {
     }
 
     return (
-        <div className="App">
-            <Grid>
-                <Grid container>
-                    <Grid item>
-                        <Grid container spacing={2}>
-                            <Grid item>
-                                <div className={classes.padding}>
-                                    <Stages a={setOpen} errorMessage={setErrorMessage} params={setStage}/>
-                                    <Metrics params={setMetric}/>
-                                </div>
+        <ThemeProvider theme={darkTheme}>
+            <CssBaseline/>
+            <AppBar
+                position="relative"
+                className={clsx(classes.appBar, open && classes.appBarShift)}
+            >
+                <Toolbar className={classes.toolbar}>
+                    <Typography
+                        component="h1"
+                        variant="h6"
+                        color="inherit"
+                        noWrap
+                        className={classes.title}
+                    >
+                        Dashboard
+                    </Typography>
+                    <Switch checked={darkState} onChange={handleThemeChange} />
+                </Toolbar>
+            </AppBar>
+            <div className="App">
+                <Grid>
+                    <Grid container>
+                        <Grid item>
+                            <Grid container spacing={2}>
+                                <Grid item>
+                                    <div className={classes.padding}>
+                                        <Stages a={setOpen} errorMessage={setErrorMessage} params={setStage}/>
+                                        <Metrics params={setMetric} setValueSign={setValueSign}/>
+                                    </div>
+                                </Grid>
+                            </Grid>
+                            <Grid container spacing={2}>
+                                <Grid item>
+                                    <InputMetricValues props={setValues} valueSign={valueSign}/>
+                                </Grid>
+                            </Grid>
+                            <Grid container spacing={2}>
+                                <Grid item>
+                                    <ResultTextFields props={responseValue}/>
+                                </Grid>
+                            </Grid>
+                            <Grid container spacing={2}>
+                                <Grid item>
+                                    <Button variant="contained" color="primary" className={classes.margin}
+                                            onClick={handleButtonClick}>
+                                        Рассчитать
+                                    </Button>
+                                </Grid>
                             </Grid>
                         </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item>
-                                <InputMetricValues props={setValues}/>
-                            </Grid>
+                        <Grid item style={{marginLeft: "15ch"}}>
+                            <PlannedReleaseMonth params={setPlannedReleaseMonth}/>
                         </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item>
-                                <ResultTextFields props={responseValue}/>
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item>
-                                <Button variant="contained" color="primary" className={classes.margin}
-                                        onClick={handleButtonClick}>
-                                    Рассчитать
-                                </Button>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                    <Grid item style={{marginLeft: "15ch"}}>
-                        <PlannedReleaseMonth params={setPlannedReleaseMonth}/>
                     </Grid>
                 </Grid>
-            </Grid>
-            <Snackbar
-                open={open}
-                autoHideDuration={6000}
-                onClose={handleClose}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right',
-                }}
-            >
-                <Alert onClose={handleClose} severity="error">
-                    {errorMessage}
-                </Alert>
-            </Snackbar>
-        </div>
+                <Snackbar
+                    open={open}
+                    autoHideDuration={6000}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                >
+                    <Alert onClose={handleClose} severity="error">
+                        {errorMessage}
+                    </Alert>
+                </Snackbar>
+            </div>
+        </ThemeProvider>
     );
 }
 
