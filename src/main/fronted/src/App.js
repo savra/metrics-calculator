@@ -39,6 +39,7 @@ import AppBar from "@material-ui/core/AppBar";
 import clsx from "clsx";
 import Toolbar from "@material-ui/core/Toolbar";
 import Switch from "@material-ui/core/Switch";
+import Hidden from '@material-ui/core/Hidden';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -75,6 +76,7 @@ const useStyles = makeStyles((theme) => ({
     },
     formControl: {
         minWidth: 120,
+        margin: theme.spacing(1),
     },
     selectEmpty: {
         marginTop: theme.spacing(2),
@@ -159,7 +161,7 @@ function PlannedReleaseMonth({params}) {
     );
 }
 
-function Metrics({params, setValueSign}) {
+function Metrics({params, setValueSign, setIsHiddenDrivers}) {
     const classes = useStyles();
     const [metric, setMetric] = React.useState('');
 
@@ -168,8 +170,17 @@ function Metrics({params, setValueSign}) {
 
         switch (event.target.value) {
             case 'DURATION_OF_MANUAL_OPERATIONS':
-            case 'RR': setValueSign('%'); break;
-            default: setValueSign('₽'); break;
+                setIsHiddenDrivers(false);
+                setValueSign('%');
+                break;
+            case 'RR':
+                setIsHiddenDrivers(true);
+                setValueSign('%');
+                break;
+            default:
+                setIsHiddenDrivers(true);
+                setValueSign('₽');
+                break;
         }
     };
 
@@ -197,7 +208,7 @@ function Metrics({params, setValueSign}) {
     );
 }
 
-function InputMetricValues({props,  valueSign}) {
+function InputMetricValues({props, valueSign}) {
     const classes = useStyles();
     const [values, setValues] = React.useState({
         userAsIsValue: 0,
@@ -216,51 +227,61 @@ function InputMetricValues({props,  valueSign}) {
     return (
         <div className={classes.root}>
             <div /*className={classes.asIsGroup}*/>
-                <Grid container className={classes.root}>
-                    <Grid item>
-                        <Typography style={{paddingTop: 8}} align={"center"}>AS-IS</Typography>
-                        <div>
-                            <FormControl className={classes.margin} style={{width: "25ch"}} variant="outlined">
-                                <InputLabel htmlFor="outlined-adornment-amount">Введите свое значение</InputLabel>
-                                <OutlinedInput
-                                    id="outlined-adornment-amount"
-                                    value={values.userAsIsValue}
-                                    onChange={handleChange('userAsIsValue')}
-                                    endAdornment={<InputAdornment position="end">{valueSign}</InputAdornment>}
-                                    labelWidth={180}
-                                    inputComponent={NumberFormatCustom}
-                                />
-                            </FormControl>
-                        </div>
-                        <div>
-                            <FormControl className={classes.margin} style={{width: "25ch"}} variant="outlined">
-                                <InputLabel htmlFor="outlined-adornment-amount">Значение из БП</InputLabel>
-                                <OutlinedInput
-                                    id="outlined-adornment-amount"
-                                    value={values.bpAsIsValue}
-                                    onChange={handleChange('bpAsIsValue')}
-                                    endAdornment={<InputAdornment position="end">{valueSign}</InputAdornment>}
-                                    labelWidth={120}
-                                    inputComponent={NumberFormatCustom}
-                                />
-                            </FormControl>
-                        </div>
+                <Grid>
+                    <Grid container>
+                        <Grid item sm={8}>
+                            <Typography style={{paddingTop: 8}} align={"center"}>AS-IS</Typography>
+                        </Grid>
+                        <Grid item sm={4}>
+                            <Typography style={{paddingTop: 8}} align={"center"}>TO-BE</Typography>
+                        </Grid>
                     </Grid>
-                    <Grid item>
-                        <Typography style={{paddingTop: 8}} align={"center"}>TO-BE</Typography>
-                        <div>
-                            <FormControl className={classes.margin} style={{width: "25ch"}} variant="outlined">
-                                <InputLabel htmlFor="outlined-adornment-amount">Введите свое значение</InputLabel>
-                                <OutlinedInput
-                                    id="outlined-adornment-amount"
-                                    value={values.userToBeValue}
-                                    onChange={handleChange('userToBeValue')}
-                                    endAdornment={<InputAdornment position="end">{valueSign}</InputAdornment>}
-                                    labelWidth={180}
-                                    inputComponent={NumberFormatCustom}
-                                />
-                            </FormControl>
-                        </div>
+                    <Grid container className={classes.root}>
+                        <Grid item sm={4}>
+                            <div>
+                                <FormControl className={classes.margin} style={{width: "25ch"}} variant="outlined">
+                                    <InputLabel htmlFor="outlined-adornment-amount">Введите свое значение</InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-adornment-amount"
+                                        value={values.userAsIsValue}
+                                        onChange={handleChange('userAsIsValue')}
+                                        endAdornment={<InputAdornment position="end">{valueSign}</InputAdornment>}
+                                        labelWidth={180}
+                                        inputComponent={NumberFormatCustom}
+                                    />
+                                </FormControl>
+                            </div>
+                        </Grid>
+                        <Grid item sm={4}>
+                            <div>
+                                <FormControl className={classes.margin} style={{width: "25ch"}} variant="outlined">
+                                    <InputLabel htmlFor="outlined-adornment-amount">Значение из БП</InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-adornment-amount"
+                                        value={values.bpAsIsValue}
+                                        onChange={handleChange('bpAsIsValue')}
+                                        endAdornment={<InputAdornment position="end">{valueSign}</InputAdornment>}
+                                        labelWidth={120}
+                                        inputComponent={NumberFormatCustom}
+                                    />
+                                </FormControl>
+                            </div>
+                        </Grid>
+                        <Grid item sm={4}>
+                            <div>
+                                <FormControl className={classes.margin} style={{width: "25ch"}} variant="outlined">
+                                    <InputLabel htmlFor="outlined-adornment-amount">Введите свое значение</InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-adornment-amount"
+                                        value={values.userToBeValue}
+                                        onChange={handleChange('userToBeValue')}
+                                        endAdornment={<InputAdornment position="end">{valueSign}</InputAdornment>}
+                                        labelWidth={180}
+                                        inputComponent={NumberFormatCustom}
+                                    />
+                                </FormControl>
+                            </div>
+                        </Grid>
                     </Grid>
                 </Grid>
             </div>
@@ -348,7 +369,87 @@ function Stages(props) {
     );
 }
 
-function ResultTextFields({props}) {
+function Products(props) {
+    const [open, setOpen] = React.useState(false);
+    const [options, setOptions] = React.useState([]);
+    const [product, setProduct] = React.useState('');
+    const loading = open && options.length === 0;
+
+    const handleChange = (event, value) => {
+        setProduct(value);
+    };
+
+    React.useEffect(() => {
+        props.params(product);
+    }, [product]);
+
+    React.useEffect(() => {
+        let active = true;
+
+        if (!loading) {
+            return undefined;
+        }
+
+        (async () => {
+            const response = await fetch('http://localhost:8080/metrics-calculator/getAllProducts');
+
+            if (!response.ok) {
+                const message = `Ошибка при получении продуктов: статус ${response.status}`;
+                throw new Error(message);
+            }
+
+            const products = await response.json();
+
+            if (active) {
+                setOptions(Object.keys(products).map(key => products[key]));
+            }
+        })().catch((error) => {
+            props.errorMessage(error.message);
+            props.a(true);
+        });
+
+        return () => {
+            active = false;
+        };
+    }, [loading]);
+
+    return (
+        <Autocomplete
+            id="asynchronous-demo"
+            style={{width: "25ch", display: "inline-flex"}}
+
+            open={open}
+            onOpen={() => {
+                setOpen(true);
+            }}
+            onClose={() => {
+                setOpen(false);
+            }}
+            getOptionLabel={(option) => option.description}
+            options={options}
+            loading={loading}
+            onChange={handleChange}
+            renderInput={(params) => (
+                <TextField
+                    {...params}
+                    label="Продукт"
+                    variant="outlined"
+                    InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                            <React.Fragment>
+                                {loading ? <CircularProgress color="inherit" size={20}/> : null}
+                                {params.InputProps.endAdornment}
+                            </React.Fragment>
+                        ),
+                    }}
+                />
+            )}
+        />
+    );
+}
+
+function ResultTextFields({props}) -{
     const classes = useStyles();
 
     let ddd = 0;
@@ -359,10 +460,10 @@ function ResultTextFields({props}) {
 
     return (
         <form className={classes.root} noValidate autoComplete="off">
-            <div /*className={classes.asIsGroup}*/>
+            <div>
                 <Typography align={"center"} style={{paddingTop: 8}}>Результат</Typography>
 
-                <div style={{marginTop: 30}}>
+                <div>
                     <TextField
                         id="average-monthly-input-result"
                         label="Среднемес."
@@ -398,6 +499,7 @@ function App() {
     const palletType = darkState ? "dark" : "light";
     const mainPrimaryColor = darkState ? orange[600] : blue[700];
     const [valueSign, setValueSign] = React.useState('');
+    const [isHiddenDrivers, setIsHiddenDrivers] = React.useState(false);
     const mainSecondaryColor = darkState ? deepOrange[900] : deepPurple[500];
     const darkTheme = createMuiTheme({
         palette: {
@@ -419,11 +521,26 @@ function App() {
     const [plannedReleaseMonth, setPlannedReleaseMonth] = React.useState("");
     const [metric, setMetric] = React.useState("");
     const [errorMessage, setErrorMessage] = React.useState("");
-    const [inputMetricsValues, setValues] = React.useState({
+    const [inputMetricsValues, setInputMetricsValues] = React.useState({
         userAsIsValue: 0,
         bpAsIsValue: 0,
         userToBeValue: 0,
     });
+    const [inputDriversValues, setInputDriversValues] = React.useState({
+        driverAsIsValue: 0,
+        driverToBeValue: 0,
+    });
+
+    const handleInputMetricsValuesChange = (prop) => (event) => {
+        setInputMetricsValues({...inputMetricsValues, [prop]: event.target.value});
+    };
+    const handleInputDriversValuesChange = (prop) => (event) => {
+        setInputDriversValues({...inputDriversValues, [prop]: event.target.value});
+    };
+    /*
+        React.useEffect(() => {
+            props(values);
+        }, [values]);*/
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -437,18 +554,14 @@ function App() {
         alert(`${stage.code} ${metric} ${plannedReleaseMonth} ${inputMetricsValues.userToBeValue} ${inputMetricsValues.bpAsIsValue} ${inputMetricsValues.userAsIsValue}`);
 
         const requestParams = {
-            "stageCode": "VV"/*stage.code*/,
+            "stageCode": "VV",
             "metricCode": metric,
             "userAsIsValue": inputMetricsValues.userAsIsValue,
             "bpAsIsValue": inputMetricsValues.bpAsIsValue,
             "userToBeValue": inputMetricsValues.userToBeValue,
             "releaseMonth": plannedReleaseMonth
         }
-        /* axios.post("http://localhost:8080/metrics-calculator/calculate").then(function (response) {
-             console.log(response);
-         }).catch(function (error) {
-             console.log(error);
-         })*/
+
         axios.post("http://localhost:8080/metrics-calculator/calculate",
             requestParams,
             {
@@ -482,39 +595,171 @@ function App() {
                     >
                         Dashboard
                     </Typography>
-                    <Switch checked={darkState} onChange={handleThemeChange} />
+                    <Switch checked={darkState} onChange={handleThemeChange}/>
                 </Toolbar>
             </AppBar>
             <div className="App">
-                <Grid>
-                    <Grid container>
-                        <Grid item>
-                            <Grid container spacing={2}>
-                                <Grid item>
-                                    <div className={classes.padding}>
-                                        <Stages a={setOpen} errorMessage={setErrorMessage} params={setStage}/>
-                                        <Metrics params={setMetric} setValueSign={setValueSign}/>
-                                    </div>
+                <Grid style={{margin: "10px"}} className={classes.root}>
+                    <Grid item>
+                        <Grid container>
+                        </Grid>
+                        <Grid container>
+                            <Grid item sm={3}/>
+                            <Grid item sm={9}>
+                                <Grid container>
+                                    <Grid item sm={12}>
+                                        <Typography style={{paddingTop: 8}}
+                                                    align={"center"}>Значение метрики (среднемес.)</Typography>
+                                    </Grid>
+                                </Grid>
+                                <Grid container>
+                                    <Grid item sm={8}>
+                                        <Typography style={{paddingTop: 8}}
+                                                    align={"center"}>AS-IS</Typography>
+                                    </Grid>
+                                    <Grid item sm={4}>
+                                        <Typography style={{paddingTop: 8}}
+                                                    align={"center"}>TO-BE</Typography>
+                                    </Grid>
                                 </Grid>
                             </Grid>
-                            <Grid container spacing={2}>
-                                <Grid item>
-                                    <InputMetricValues props={setValues} valueSign={valueSign}/>
-                                </Grid>
+                        </Grid>
+                        <Grid container>
+                            <Grid item sm={3}>
+                                <Metrics params={setMetric} setValueSign={setValueSign} setIsHiddenDrivers={setIsHiddenDrivers}/>
                             </Grid>
-                            <Grid container spacing={2}>
-                                <Grid item>
-                                    <ResultTextFields props={responseValue}/>
-                                </Grid>
+                            <Grid item sm={3}>
+                                <FormControl className={classes.margin}
+                                             style={{width: "25ch"}} variant="outlined">
+                                    <InputLabel htmlFor="outlined-adornment-amount">Введите
+                                        свое значение</InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-adornment-amount"
+                                        value={inputMetricsValues.userAsIsValue}
+                                        onChange={handleInputMetricsValuesChange('userAsIsValue')}
+                                        endAdornment={<InputAdornment
+                                            position="end">{valueSign}</InputAdornment>}
+                                        labelWidth={180}
+                                        inputComponent={NumberFormatCustom}
+                                    />
+                                </FormControl>
                             </Grid>
-                            <Grid container spacing={2}>
-                                <Grid item>
-                                    <Button variant="contained" color="primary" className={classes.margin}
-                                            onClick={handleButtonClick}>
-                                        Рассчитать
-                                    </Button>
-                                </Grid>
+                            <Grid item sm={3}>
+                                <FormControl className={classes.margin}
+                                             style={{width: "25ch"}} variant="outlined">
+                                    <InputLabel htmlFor="outlined-adornment-amount">Значение
+                                        из БП</InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-adornment-amount"
+                                        value={inputMetricsValues.bpAsIsValue}
+                                        onChange={handleInputMetricsValuesChange('bpAsIsValue')}
+                                        endAdornment={<InputAdornment
+                                            position="end">{valueSign}</InputAdornment>}
+                                        labelWidth={120}
+                                        inputComponent={NumberFormatCustom}
+                                    />
+                                </FormControl>
                             </Grid>
+                            <Grid item sm={3}>
+                                <FormControl className={classes.margin}
+                                             style={{width: "25ch"}} variant="outlined">
+                                    <InputLabel htmlFor="outlined-adornment-amount">Введите
+                                        свое значение</InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-adornment-amount"
+                                        value={inputMetricsValues.userToBeValue}
+                                        onChange={handleInputMetricsValuesChange('userToBeValue')}
+                                        endAdornment={<InputAdornment
+                                            position="end">{valueSign}</InputAdornment>}
+                                        labelWidth={180}
+                                        inputComponent={NumberFormatCustom}
+                                    />
+                                </FormControl>
+                            </Grid>
+                        </Grid>
+                        <Grid container>
+                            <Hidden smUp={isHiddenDrivers}>
+                                <Grid item sm={3}/>
+                                <Grid item sm={9}>
+                                    <Grid container>
+                                        <Grid item sm={12}>
+                                            <Typography style={{paddingTop: 8}}
+                                                        align={"center"}>Значение драйвера (среднемес.)</Typography>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid container>
+                                        <Grid item sm={8}>
+                                            <Typography style={{paddingTop: 8}}
+                                                        align={"center"}>AS-IS</Typography>
+                                        </Grid>
+                                        <Grid item sm={4}>
+                                            <Typography style={{paddingTop: 8}}
+                                                        align={"center"}>TO-BE</Typography>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Hidden>
+                        </Grid>
+                        <Grid container>
+                            <Hidden smUp={isHiddenDrivers}>
+                                <Grid item sm={3}/>
+                                <Grid item sm={3}>
+                                    <FormControl className={classes.margin}
+                                                 style={{width: "25ch"}} variant="outlined">
+                                        <InputLabel htmlFor="outlined-adornment-amount">Введите свое
+                                            значение</InputLabel>
+                                        <OutlinedInput
+                                            id="outlined-adornment-amount"
+                                            value={inputDriversValues.driverAsIsValue}
+                                            onChange={handleInputDriversValuesChange('driverAsIsValue')}
+                                            endAdornment={<InputAdornment
+                                                position="end">шт.</InputAdornment>}
+                                            labelWidth={180}
+                                            inputComponent={NumberFormatCustom}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item sm={3}/>
+                                <Grid item sm={3}>
+                                    <FormControl className={classes.margin}
+                                                 style={{width: "25ch"}} variant="outlined">
+                                        <InputLabel htmlFor="outlined-adornment-amount">Введите
+                                            свое значение</InputLabel>
+                                        <OutlinedInput
+                                            id="outlined-adornment-amount"
+                                            value={inputDriversValues.driverToBeValue}
+                                            onChange={handleInputDriversValuesChange('driverToBeValue')}
+                                            endAdornment={<InputAdornment
+                                                position="end">шт.</InputAdornment>}
+                                            labelWidth={180}
+                                            inputComponent={NumberFormatCustom}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                            </Hidden>
+                        </Grid>
+                        <Grid container>
+                            <Grid item>
+                                <ResultTextFields props={responseValue}/>
+                            </Grid>
+                        </Grid>
+                        <Grid container>
+                            <Grid item>
+                                <Button variant="contained" color="primary" className={classes.margin}
+                                        onClick={handleButtonClick}>
+                                    Рассчитать
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid item>
+                        <Grid item style={{marginLeft: "15ch"}}>
+                            <div>
+                                <Stages a={setOpen} errorMessage={setErrorMessage} params={setStage}/>
+                            </div>
+                        </Grid>
+                        <Grid item style={{marginLeft: "15ch"}}>
+                            <Products a={setOpen} errorMessage={setErrorMessage} params={setStage}/>
                         </Grid>
                         <Grid item style={{marginLeft: "15ch"}}>
                             <PlannedReleaseMonth params={setPlannedReleaseMonth}/>

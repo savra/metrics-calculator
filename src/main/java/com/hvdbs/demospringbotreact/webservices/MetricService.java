@@ -1,5 +1,6 @@
 package com.hvdbs.demospringbotreact.webservices;
 
+import com.hvdbs.demospringbotreact.dto.ProductDimDto;
 import com.hvdbs.demospringbotreact.dto.StageDimDto;
 
 import java.time.LocalDate;
@@ -14,4 +15,6 @@ public interface MetricService {
                                     double bpAsIsValue,
                                     double userToBeValue,
                                     LocalDate releaseMonth);
+
+    List<ProductDimDto> getAllProducts();
 }

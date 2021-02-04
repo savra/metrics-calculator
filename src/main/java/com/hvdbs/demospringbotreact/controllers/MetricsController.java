@@ -1,5 +1,6 @@
 package com.hvdbs.demospringbotreact.controllers;
 
+import com.hvdbs.demospringbotreact.dto.ProductDimDto;
 import com.hvdbs.demospringbotreact.dto.SomeClass;
 import com.hvdbs.demospringbotreact.dto.StageDimDto;
 import com.hvdbs.demospringbotreact.webservices.MetricService;
@@ -22,6 +23,11 @@ public class MetricsController {
     @GetMapping("/getAllStages")
     public List<StageDimDto> getAllStages() {
         return metricService.getAllStages();
+    }
+
+    @GetMapping("/getAllProducts")
+    public List<ProductDimDto> getAllProducts() {
+        return metricService.getAllProducts();
     }
 
     @PostMapping("/calculate")
